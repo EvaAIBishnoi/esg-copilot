@@ -5,7 +5,8 @@ import MicButton from '@/components/MicButton';
 import VoiceVisualizer from '@/components/VoiceVisualizer';
 import UploadDocs from '@/components/UploadDocs';
 import OutputDisplay from '@/components/OutputDisplay';
-import { Send, Settings, HelpCircle, Menu, X } from 'lucide-react';
+import { Send, Settings, HelpCircle, Menu, X, History, RotateCcw, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Message {
   id: string;
@@ -22,6 +23,7 @@ const Index = () => {
   const [inputText, setInputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState<string>('default');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const addMessage = (content: string, type: 'user' | 'bot', isTyping = false) => {
@@ -75,6 +77,13 @@ const Index = () => {
     }, 2000);
   };
 
+  const handleNewChat = () => {
+    setMessages([]);
+    setCurrentChatId(Math.random().toString(36).substr(2, 9));
+    setInputText('');
+    setIsProcessing(false);
+  };
+
   const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleSubmitQuery(inputText);
@@ -108,40 +117,58 @@ const Index = () => {
       <header className="relative z-10 flex items-center justify-between p-6 glass-morphism border-b border-white/20">
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 rounded-xl kpmg-gradient flex items-center justify-center transform-style-3d perspective-1000 hover:rotate-12 transition-transform duration-300">
-            <span className="text-white font-bold text-xl">K</span>
+            <FileText className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-kpmg-navy">ESG/Audit Copilot</h1>
-            <p className="text-sm text-kpmg-blue/70">Voice-Activated Compliance Assistant</p>
+            <h1 className="text-2xl font-bold text-primary">ESG/Audit Copilot</h1>
+            <p className="text-sm text-foreground font-medium">Voice-Activated Compliance Assistant</p>
           </div>
         </div>
         
         <div className="flex items-center space-x-4">
-          <button className="p-2 rounded-xl glass-morphism border border-white/20 hover:bg-white/10 transition-colors">
-            <Settings className="w-5 h-5 text-kpmg-blue" />
+          <button
+            onClick={handleNewChat}
+            className="p-2 rounded-xl glass-morphism border border-white/20 hover:bg-white/10 transition-colors"
+            title="New Chat"
+          >
+            <RotateCcw className="w-5 h-5 text-primary" />
           </button>
+          <Link 
+            to="/history"
+            className="p-2 rounded-xl glass-morphism border border-white/20 hover:bg-white/10 transition-colors"
+            title="Chat History"
+          >
+            <History className="w-5 h-5 text-primary" />
+          </Link>
+          <Link 
+            to="/settings"
+            className="p-2 rounded-xl glass-morphism border border-white/20 hover:bg-white/10 transition-colors"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5 text-primary" />
+          </Link>
           <button className="p-2 rounded-xl glass-morphism border border-white/20 hover:bg-white/10 transition-colors">
-            <HelpCircle className="w-5 h-5 text-kpmg-blue" />
+            <HelpCircle className="w-5 h-5 text-primary" />
           </button>
           <button 
             onClick={() => setShowSidebar(!showSidebar)}
             className="p-2 rounded-xl glass-morphism border border-white/20 hover:bg-white/10 transition-colors lg:hidden"
           >
-            {showSidebar ? <X className="w-5 h-5 text-kpmg-blue" /> : <Menu className="w-5 h-5 text-kpmg-blue" />}
+            {showSidebar ? <X className="w-5 h-5 text-primary" /> : <Menu className="w-5 h-5 text-primary" />}
           </button>
         </div>
       </header>
 
-      <div className="flex h-screen">
+      <div className="flex h-screen pt-16">
         {/* Sidebar */}
         <div className={`
           ${showSidebar ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           fixed lg:relative z-20 w-80 h-full glass-morphism border-r border-white/20 p-6 space-y-6
-          transition-transform duration-300 backdrop-blur-lg
+          transition-transform duration-300 backdrop-blur-lg overflow-y-auto
         `}>
           {/* Voice Control Section */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-kpmg-navy">Voice Control</h2>
+            <h2 className="text-lg font-semibold text-primary">Voice Control</h2>
             
             <div className="flex flex-col items-center space-y-4 p-6 rounded-xl glass-morphism border border-white/20">
               <MicButton
@@ -159,19 +186,19 @@ const Index = () => {
 
           {/* Document Upload */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-kpmg-navy">Document Analysis</h2>
+            <h2 className="text-lg font-semibold text-primary">Document Analysis</h2>
             <UploadDocs onFilesUploaded={handleFilesUploaded} />
           </div>
 
           {/* Quick Actions */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-kmpg-navy">Quick Actions</h2>
+            <h2 className="text-lg font-semibold text-primary">Quick Actions</h2>
             <div className="space-y-2">
               {quickActions.map((action, index) => (
                 <button
                   key={index}
                   onClick={() => handleSubmitQuery(action)}
-                  className="w-full text-left p-3 rounded-lg glass-morphism border border-white/20 hover:bg-white/10 transition-all duration-200 transform hover:scale-105 text-sm text-kpmg-navy"
+                  className="w-full text-left p-3 rounded-lg glass-morphism border border-white/20 hover:bg-white/10 transition-all duration-200 transform hover:scale-105 text-sm text-primary"
                 >
                   {action}
                 </button>
@@ -197,12 +224,12 @@ const Index = () => {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Ask about ESG regulations, audit procedures, or tax rules..."
-                  className="w-full p-4 pr-12 rounded-xl glass-morphism border border-white/20 bg-white/10 text-kmpg-navy placeholder-kpmg-blue/50 focus:outline-none focus:ring-2 focus:ring-kpmg-accent/50 backdrop-blur-sm"
+                  className="w-full p-4 pr-12 rounded-xl glass-morphism border border-white/20 bg-white/10 text-primary placeholder-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm"
                 />
                 <button
                   type="submit"
                   disabled={!inputText.trim() || isProcessing}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-lg kmpg-gradient hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-lg kpmg-gradient hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
                   <Send className="w-4 h-4 text-white" />
                 </button>
